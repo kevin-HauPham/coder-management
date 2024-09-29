@@ -1,19 +1,19 @@
 const { sendResponse, AppError } = require("../helpers/utils.js");
-
-const car = require("../models/Car.js");
+const Car = require("../models/Car.js");
 
 const carController = {};
-//Create a car
-carController.createCar = async (req, res, next) => {
-  //in real project you will getting info from req
 
+// Create a car
+carController.createCar = async (req, res, next) => {
   try {
     const info = req.body;
 
-    //always remember to control your inputs
-    if (!info) throw new AppError(402, "Bad Request", "Create car Error");
-    //mongoose query
-    const created = await car.create(info);
+    // Control your inputs
+    if (!info || Object.keys(info).length === 0)
+      throw new AppError(400, "Bad Request", "Create Car Error");
+
+    // Mongoose query to create a new car
+    const created = await Car.create(info);
     sendResponse(
       res,
       200,
@@ -27,20 +27,32 @@ carController.createCar = async (req, res, next) => {
   }
 };
 
-//Get all car
+// Get all cars with pagination and filtering
 carController.getCars = async (req, res, next) => {
-  //in real project you will getting condition from from req then construct the filter object for query
-  // empty filter mean get all
-  const filter = {};
   try {
-    //mongoose query
-    car.f;
-    const listOfFound = await car.find(filter).limit(2);
+    // Optional filters from the query parameters
+    const { make, model, year, size } = req.query;
+
+    const filter = {};
+    if (make) filter.make = make;
+    if (model) filter.model = model;
+    if (year) filter.release_date = year;
+    if (size) filter.size = size;
+
+    // Optional pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Find cars with filters and pagination
+    const cars = await Car.find(filter).skip(skip).limit(limit);
+    const totalCars = await Car.countDocuments(filter);
+
     sendResponse(
       res,
       200,
       true,
-      { car: listOfFound, page: 1, total: 1192 },
+      { cars, page, totalCars },
       null,
       "Get Car List Successfully!"
     );
@@ -49,25 +61,37 @@ carController.getCars = async (req, res, next) => {
   }
 };
 
-//Update a car
+// Update a car
 carController.editCar = async (req, res, next) => {
-  //in real project you will getting id from req. For updating and deleting, it is recommended for you to use unique identifier such as _id to avoid duplication
-  //you will also get updateInfo from req
-  // empty target and info mean update nothing
-  const targetId = null;
-  const updateInfo = "";
-
-  //options allow you to modify query. e.g new true return lastest update of data
-  const options = { new: true };
   try {
-    //mongoose query
-    const updated = await car.findByIdAndUpdate(targetId, updateInfo, options);
+    // Get ID from request parameters
+    const targetId = req.params.id;
+
+    // Get update information from the request body
+    const updateInfo = req.body;
+
+    if (!targetId || !updateInfo || Object.keys(updateInfo).length === 0) {
+      throw new AppError(400, "Bad Request", "Update Car Error");
+    }
+
+    // Options for updating
+    const options = { new: true };
+
+    // Mongoose query to find by ID and update
+    const updatedCar = await Car.findByIdAndUpdate(
+      targetId,
+      updateInfo,
+      options
+    );
+
+    if (!updatedCar)
+      throw new AppError(404, "Car not found", "Update Car Error");
 
     sendResponse(
       res,
       200,
       true,
-      { car: updated },
+      { car: updatedCar },
       null,
       "Update Car Successfully!"
     );
@@ -76,23 +100,25 @@ carController.editCar = async (req, res, next) => {
   }
 };
 
-//Delete car
+// Delete a car
 carController.deleteCar = async (req, res, next) => {
-  //in real project you will getting id from req. For updating and deleting, it is recommended for you to use unique identifier such as _id to avoid duplication
-
-  // empty target mean delete nothing
-  const targetId = null;
-  //options allow you to modify query. e.g new true return lastest update of data
-  const options = { new: true };
   try {
-    //mongoose query
-    const updated = await car.findByIdAndDelete(targetId, options);
+    // Get ID from request parameters
+    const targetId = req.params.id;
+
+    if (!targetId) throw new AppError(400, "Bad Request", "Delete Car Error");
+
+    // Mongoose query to find by ID and delete
+    const deletedCar = await Car.findByIdAndDelete(targetId);
+
+    if (!deletedCar)
+      throw new AppError(404, "Car not found", "Delete Car Error");
 
     sendResponse(
       res,
       200,
       true,
-      { car: updated },
+      { car: deletedCar },
       null,
       "Delete Car Successfully!"
     );
@@ -101,5 +127,5 @@ carController.deleteCar = async (req, res, next) => {
   }
 };
 
-//export
+// Export the controller
 module.exports = carController;

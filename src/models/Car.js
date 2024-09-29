@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
-//Create schema
-const carSchema = mongoose.Schema(
+
+// Extended carSchema to fit your CSV data
+const carSchema = new mongoose.Schema(
   {
     make: {
       type: String,
@@ -39,12 +40,20 @@ const carSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    engine_fuel_type: String,
+    engine_hp: Number,
+    engine_cylinders: Number,
+    driven_wheels: String,
+    number_of_doors: Number,
+    market_category: String,
+    highway_mpg: Number,
+    city_mpg: Number,
+    popularity: Number,
   },
   {
     timestamps: true,
   }
 );
 
-//Create and export model
 const Car = mongoose.model("Car", carSchema);
 module.exports = Car;
