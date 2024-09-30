@@ -41,7 +41,7 @@ carController.getCars = async (req, res, next) => {
 
     // Optional pagination parameters
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit);
     const skip = (page - 1) * limit;
 
     // Find cars with filters and pagination
