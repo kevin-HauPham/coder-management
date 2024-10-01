@@ -1,18 +1,17 @@
-// src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import TaskDetails from './components/TaskDetails';
+// App.js
+import React from "react";
+import { TaskProvider } from "./context/TaskContext";
+import TaskList from "./components/TaskList";
+import TaskForm from "./components/TaskForm"; // Assuming you have a TaskForm component to add new tasks
 
-function App() {
+const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/tasks/:id" element={<TaskDetails />} />
-      </Routes>
-    </Router>
+    <TaskProvider>
+      <h1>Task Management</h1>
+      <TaskForm />
+      <TaskList />
+    </TaskProvider>
   );
-}
+};
 
 export default App;

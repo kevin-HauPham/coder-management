@@ -1,46 +1,55 @@
 // src/components/TaskForm.js
-import React, { useState } from 'react';
-import { createTask } from '../api';
+import React, { useState } from "react";
+import { createTask } from "../api"; // Make sure this function exists in your api.js file
+import { useTasks } from "../context/TaskContext"; // Import the useTasks context
 
 const TaskForm = () => {
-  const [taskData, setTaskData] = useState({
-    name: '',
-    description: '',
-  });
+  const { loadTasks } = useTasks(); // Get the loadTasks function from the context
+  const [taskName, setTaskName] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
 
-  const handleChange = (e) => {
-    setTaskData({ ...taskData, [e.target.name]: e.target.value });
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await createTask(taskData);
-    setTaskData({ name: '', description: '' });
+    const taskData = {
+      name: taskName,
+      description: taskDescription,
+    };
+
+    try {
+      await createTask(taskData); // Call the API to create a new task
+      loadTasks(); // Refresh the tasks after creation
+      setTaskName(""); // Clear the input fields
+      setTaskDescription("");
+    } catch (error) {
+      console.error("Error creating task:", error); // Handle any errors
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      <h2>Create New Task</h2>
       <div>
-        <label>Task Name</label>
-        <input
-          type="text"
-          name="name"
-          value={taskData.name}
-          onChange={handleChange}
-          required
-        />
+        <label>
+          Task Name:
+          <input
+            type="text"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            required
+          />
+        </label>
       </div>
-
       <div>
-        <label>Task Description</label>
-        <textarea
-          name="description"
-          value={taskData.description}
-          onChange={handleChange}
-          required
-        />
+        <label>
+          Task Description:
+          <textarea
+            value={taskDescription}
+            onChange={(e) => setTaskDescription(e.target.value)}
+            required
+          />
+        </label>
       </div>
-
       <button type="submit">Create Task</button>
     </form>
   );

@@ -1,18 +1,10 @@
-// src/components/TaskList.js
-import React, { useEffect, useState } from 'react';
-import { fetchTasks } from '../api';
+// TaskList.js
+import React, { useState } from "react";
+import { useTasks } from "../context/TaskContext";
 
 const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('');
-
-  useEffect(() => {
-    const loadTasks = async () => {
-      const data = await fetchTasks();
-      setTasks(data);
-    };
-    loadTasks();
-  }, []);
+  const { tasks } = useTasks();
+  const [statusFilter, setStatusFilter] = useState("");
 
   const filteredTasks = tasks.filter((task) =>
     statusFilter ? task.status === statusFilter : true
