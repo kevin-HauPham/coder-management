@@ -1,35 +1,147 @@
-// TaskList.js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTasks } from "../context/TaskContext";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
+import { deleteTask } from "../api";
 
 const TaskList = () => {
-  const { tasks } = useTasks();
+  const { tasks, user, loadTasks } = useTasks();
   const [statusFilter, setStatusFilter] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const filteredTasks = tasks.filter((task) =>
     statusFilter ? task.status === statusFilter : true
   );
 
-  return (
-    <div>
-      <h2>Tasks</h2>
-      <select onChange={(e) => setStatusFilter(e.target.value)}>
-        <option value="">All</option>
-        <option value="pending">Pending</option>
-        <option value="working">Working</option>
-        <option value="review">Review</option>
-        <option value="done">Done</option>
-        <option value="archive">Archive</option>
-      </select>
+  useEffect(() => {
+    loadTasks();
+  }, []);
 
-      <ul>
-        {filteredTasks.map((task) => (
-          <li key={task._id}>
-            {task.name} - {task.status}
-          </li>
-        ))}
-      </ul>
-    </div>
+  const handleOpenDialog = (taskId) => {
+    setSelectedTask(taskId);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedTask(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    await deleteTask(selectedTask);
+    await loadTasks();
+    handleCloseDialog();
+  };
+
+  return (
+    <Box>
+      <Typography variant="h4" gutterBottom>
+        Tasks
+      </Typography>
+
+      {/* Task Filter Dropdown */}
+      <Box mb={3}>
+        <Select
+          fullWidth
+          displayEmpty
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="pending">Pending</MenuItem>
+          <MenuItem value="working">Working</MenuItem>
+          <MenuItem value="review">Review</MenuItem>
+          <MenuItem value="done">Done</MenuItem>
+          <MenuItem value="archive">Archive</MenuItem>
+        </Select>
+      </Box>
+
+      {/* Task List Table */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Task Name</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Creator</TableCell>
+              <TableCell>Assigned To</TableCell>
+              <TableCell align="center">Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredTasks.map((task) => (
+              <TableRow key={task._id}>
+                {/* Task Name as Link */}
+                <TableCell>
+                  <RouterLink
+                    to={`/tasks/${task._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    {task.name}
+                  </RouterLink>
+                </TableCell>
+                <TableCell>{task.status}</TableCell>
+                <TableCell>
+                  {task.creator ? task.creator.name : "N/A"}
+                </TableCell>
+                <TableCell>
+                  {task.assigned_to && task.assigned_to
+                    ? task.assigned_to
+                    : "N/A"}
+                </TableCell>
+                <TableCell align="center">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleOpenDialog(task._id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this task? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

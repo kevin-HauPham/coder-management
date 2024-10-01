@@ -27,9 +27,27 @@ export const createTask = async (taskData) => {
   const response = await axios.post(`${API_URL}/tasks`, taskData);
   return response.data;
 };
+// Create a new user
+export const createUser = async (userData) => {
+  const response = await axios.post(`${API_URL}/users`, userData);
+  return response.data;
+};
+
+// delete a new task
+export const deleteTask = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/tasks/${id}`);
+    return response.data; // This assumes your backend sends a response
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    throw error; // Rethrow the error if you want to handle it later
+  }
+};
 
 // Update task status
 export const updateTaskStatus = async (id, status) => {
-  const response = await axios.patch(`${API_URL}/tasks/${id}`, { status });
+  const response = await axios.patch(`${API_URL}/tasks/${id}/status`, {
+    status,
+  });
   return response.data;
 };
