@@ -1,63 +1,47 @@
-const { sendResponse, AppError } = require("./helpers/utils.js");
-
-require("dotenv").config();
-const cors = require("cors");
+// app.js
 
 const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
+const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const { errorHandler } = require("./middleware/errorMiddleware");
+const cors = require("cors");
+const { validationResult } = require("express-validator");
 
-const indexRouter = require("./routes/index");
-
-const app = express();
-const PORT = process.env.PORT;
-
-// Home Page
-
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
-
-app.use("/", indexRouter);
+// Load environment variables
+dotenv.config();
 
 // Connect to MongoDB
-const mongoose = require("mongoose");
-mongoose.set("strictQuery", true);
-/* DB connection*/
-const mongoURI = process.env.MONGODB_URI;
-mongoose
-  .connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log(`DB connected ${mongoURI}`))
-  .catch((err) => console.log("MongoDB connection error:", err));
+connectDB();
 
-// catch 404 and forard to error handler
+// Initialize Express app
+const app = express();
+
+// Middleware
+app.use(cors()); // Enable CORS for cross-origin requests
+app.use(express.json()); // Parse incoming JSON requests
+app.use(morgan("dev")); // Log requests to the console
+
+// Routes
+app.use("/user", userRoutes);
+app.use("/task", taskRoutes);
+
+// Global error handling middleware
+app.use(errorHandler);
+
+// Express Validator Error Handling Middleware
 app.use((req, res, next) => {
-  const err = new AppError(404, "Not Found", "Bad Request");
-  next(err);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
 });
 
-/* Initialize Error Handling */
-app.use((err, req, res, next) => {
-  console.log("ERROR", err);
-  return sendResponse(
-    res,
-    err.statusCode ? err.statusCode : 500,
-    false,
-    null,
-    { message: err.message },
-    err.isOperational ? err.errorType : "Internal Server Error"
-  );
-});
-
+// Start the server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-module.exports = app;
