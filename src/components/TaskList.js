@@ -31,7 +31,6 @@ const TaskList = () => {
   const filteredTasks = tasks.filter((task) =>
     statusFilter ? task.status === statusFilter : true
   );
-
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
