@@ -33,7 +33,7 @@ const TaskList = () => {
   );
   useEffect(() => {
     loadTasks();
-  }, [loadTasks]);
+  }, []);
 
   const handleOpenDialog = (taskId) => {
     setSelectedTask(taskId);
