@@ -27,6 +27,13 @@ app.use(morgan("dev")); // Log requests to the console
 app.use("/api", userRoutes);
 app.use("/api", taskRoutes);
 
+app.use(
+  cors({
+    origin: "https://slug-panel.onrender.com",
+    headers: ["Content-Type"],
+    credentials: true,
+  })
+);
 
 // Express Validator Error Handling Middleware
 app.use((req, res, next) => {
