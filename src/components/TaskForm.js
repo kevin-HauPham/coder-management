@@ -26,6 +26,9 @@ const TaskForm = () => {
   const [users, setUsers] = useState([]); // State to hold user options
   const [openAddUserDialog, setOpenAddUserDialog] = useState(false); // State to control dialog visibility
   const [newUserName, setNewUserName] = useState(""); // State for new user name
+  const [taskStatus, setTaskStatus] = useState("pending"); // Default task status
+
+  const statusOptions = ["pending", "working", "review", "done", "archive"]; // Task status options
 
   const handleFetchUsers = async () => {
     try {
@@ -44,6 +47,7 @@ const TaskForm = () => {
       description: taskDescription,
       creator, // Include the selected creator
       assigned_to: assignedEmployee, // Include the assigned employee
+      status: taskStatus, // Include the selected task status
     };
 
     try {
@@ -53,6 +57,7 @@ const TaskForm = () => {
       setTaskDescription("");
       setCreator(""); // Reset creator selection
       setAssignedEmployee(""); // Reset assigned employee selection
+      setTaskStatus("pending"); // Reset task status
       setUsers([]); // Clear users after form submission if needed
     } catch (error) {
       console.error("Error creating task:", error); // Handle any errors
@@ -124,6 +129,24 @@ const TaskForm = () => {
             {users.map((user) => (
               <MenuItem key={user._id} value={user._id}>
                 {user.name} {/* Adjust based on how user data is structured */}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Task Status Selection */}
+      <Box mb={2}>
+        <FormControl fullWidth required>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
+            label="Status"
+          >
+            {statusOptions.map((status) => (
+              <MenuItem key={status} value={status}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
               </MenuItem>
             ))}
           </Select>
