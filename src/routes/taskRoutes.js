@@ -1,17 +1,70 @@
-const express = require('express');
-const { createTask, getTasks, assignTask, updateTaskStatus, deleteTask } = require('../controllers/taskController');
-const { check } = require('express-validator');
+const express = require("express");
+const {
+  createTask,
+  getAllTasks,
+  getTaskById,
+  assignTask,
+  updateTaskStatus,
+  softDeleteTask,
+} = require("../controllers/taskController");
+const { check, validationResult } = require("express-validator");
+const { ObjectId } = require("mongoose").Types;
 
 const router = express.Router();
 
-router.post('/tasks', [
-  check('name').not().isEmpty().withMessage('Task name is required'),
-  check('description').not().isEmpty().withMessage('Task description is required')
-], createTask);
+// Create a new task
+router.post(
+  "/tasks",
+  [
+    check("name")
+      .isString()
+      .notEmpty()
+      .withMessage("Task name is required and must be a valid string."),
+    check("description")
+      .isString()
+      .notEmpty()
+      .withMessage("Task description is required and must be a valid string."),
+  ],
+  createTask
+);
 
-router.get('/tasks', getTasks);
-router.put('/tasks/:id/assign', assignTask);
-router.put('/tasks/:id/status', updateTaskStatus);
-router.delete('/tasks/:id', deleteTask);
+// Get all tasks with optional filtering
+router.get("/tasks", getAllTasks);
+
+// Get a single task by ID
+router.get(
+  "/tasks/:id",
+  [check("id").isMongoId().withMessage("Invalid task ID format.")],
+  getTaskById
+);
+
+// Assign a task to a user
+router.put(
+  "/tasks/:id/assign",
+  [
+    check("id").isMongoId().withMessage("Invalid task ID format."),
+    check("userId").isMongoId().withMessage("Invalid user ID format."),
+  ],
+  assignTask
+);
+
+// Update task status
+router.patch(
+  "/tasks/:id/status",
+  [
+    check("id").isMongoId().withMessage("Invalid task ID format."),
+    check("status")
+      .isIn(["pending", "working", "review", "done", "archive"])
+      .withMessage("Invalid status value."),
+  ],
+  updateTaskStatus
+);
+
+// Soft delete a task
+router.delete(
+  "/tasks/:id",
+  [check("id").isMongoId().withMessage("Invalid task ID format.")],
+  softDeleteTask
+);
 
 module.exports = router;

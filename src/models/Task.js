@@ -1,5 +1,3 @@
-// models/Task.js
-
 const mongoose = require("mongoose");
 
 // Define Task schema
@@ -16,12 +14,24 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["pending", "working", "review", "done", "archive"],
-      default: "pending", // Default status is 'pending'
+      default: "pending",
     },
     assigned_to: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Reference to the User model
       default: null, // Task can have no user assigned
+    },
+    assignedUserName: {
+      type: String,
+      default: null,
+    },
+    assignedDate: {
+      type: Date,
+      default: null, 
+    },
+    deleted: {
+      type: Boolean,
+      default: false,s
     },
   },
   {

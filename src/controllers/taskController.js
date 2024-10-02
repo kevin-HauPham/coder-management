@@ -1,80 +1,73 @@
-// controllers/taskController.js
-
 const Task = require("../models/Task");
-const User = require("../models/User");
-const { validationResult } = require("express-validator");
 
 // Create a new task
 exports.createTask = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name, description } = req.body;
-
+  const task = new Task(req.body);
   try {
-    const newTask = new Task({ name, description });
-    await newTask.save();
-    res.status(201).json(newTask);
+    await task.save();
+    res.status(201).json(task);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ message: error.message });
   }
 };
 
 // Get all tasks with optional filters
-exports.getTasks = async (req, res) => {
+exports.getAllTasks = async (req, res) => {
+  const { name, status } = req.query;
+  const filters = {};
+  if (name) filters.name = new RegExp(name, "i");
+  if (status) filters.status = status;
+
   try {
-    const filters = req.query; // Allows filtering by query parameters (status, name, etc.)
-    const tasks = await Task.find(filters).sort({ createdAt: -1 });
+    const tasks = await Task.find(filters);
     res.status(200).json(tasks);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get a single task by ID
+exports.getTaskById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
 // Assign a task to a user
 exports.assignTask = async (req, res) => {
+  const { id } = req.params;
   const { userId } = req.body;
-  const taskId = req.params.id;
 
   try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
     const task = await Task.findByIdAndUpdate(
-      taskId,
-      { assigned_to: userId },
+      id,
+      { assignedTo: userId },
       { new: true }
     );
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
+    if (!task) return res.status(404).json({ message: "Task not found" });
     res.status(200).json(task);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ message: error.message });
   }
 };
 
-// Update the status of a task
+// Update task status
 exports.updateTaskStatus = async (req, res) => {
+  const { id } = req.params;
   const { status } = req.body;
-  const taskId = req.params.id;
 
   try {
-    const task = await Task.findById(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
 
-    // Ensure the status cannot change from 'done' to any other status except 'archive'
     if (task.status === "done" && status !== "archive") {
       return res.status(400).json({
-        message:
-          "Cannot change status from done to anything other than archive",
+        message: "Cannot change status from done to anything except archive.",
       });
     }
 
@@ -82,25 +75,21 @@ exports.updateTaskStatus = async (req, res) => {
     await task.save();
     res.status(200).json(task);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ message: error.message });
   }
 };
 
 // Soft delete a task
-exports.deleteTask = async (req, res) => {
-  const taskId = req.params.id;
+exports.softDeleteTask = async (req, res) => {
+  console.log("Received DELETE request for task ID:", req.params.id);
+  const { id } = req.params;
 
   try {
-    const task = await Task.findById(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    // Soft delete: instead of removing the document, update the status to 'archive'
-    task.status = "archive";
-    await task.save();
-    res.status(200).json({ message: "Task archived successfully" });
+    // Use findByIdAndDelete to permanently remove the task
+    const task = await Task.findByIdAndDelete(id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+    res.status(204).send(); // Send no content on successful deletion
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ message: error.message }); // Handle validation or other errors
   }
 };

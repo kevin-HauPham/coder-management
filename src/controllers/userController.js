@@ -1,45 +1,59 @@
-// controllers/userController.js
-
-const User = require('../models/User');
-const Task = require('../models/Task');
-const { validationResult } = require('express-validator');
+const User = require("../models/User");
 
 // Create a new user
 exports.createUser = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name } = req.body;
-
+  const user = new User(req.body);
   try {
-    const newUser = new User({ name });
-    await newUser.save();
-    res.status(201).json(newUser);
+    await user.save();
+    res.status(201).json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(400).json({ message: error.message });
   }
 };
 
 // Get all users with optional filters
-exports.getUsers = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
-    const filters = req.query; // Allows filtering based on query parameters
+    const { name } = req.query;
+    const filters = name ? { name: new RegExp(name, "i") } : {};
     const users = await User.find(filters);
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Get all tasks assigned to a specific user
-exports.getUserTasks = async (req, res) => {
+// Search for an employee by name
+exports.searchUserByName = async (req, res) => {
+  const { name } = req.params;
   try {
-    const userId = req.params.id;
-    const tasks = await Task.find({ assigned_to: userId });
+    const users = await User.find({ name: new RegExp(name, "i") });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all tasks of a user by ID
+exports.getUserTasks = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tasks = await Task.find({ assignedTo: id });
     res.status(200).json(tasks);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message });
+  }
+};
+// Get a user by ID
+exports.getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
