@@ -30,7 +30,6 @@ const TaskDetails = () => {
   const [newStatus, setNewStatus] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [showUserDetail, setShowUserDetail] = useState(false);
-  const [assignedUser, setAssignedUser] = useState(null);
 
   useEffect(() => {
     const loadTask = async () => {
@@ -72,7 +71,6 @@ const TaskDetails = () => {
   const statusOptions = ["pending", "working", "review", "done", "archive"];
 
   const handleShowUserDetail = () => {
-    setAssignedUser(task.assigned_to);
     setShowUserDetail(true);
   };
 
