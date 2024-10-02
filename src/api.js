@@ -21,6 +21,11 @@ export const fetchTaskById = async (id) => {
   const response = await axios.get(`${API_URL}/tasks/${id}`);
   return response.data;
 };
+// Fetch user s by ID
+export const fetchUserById = async (id) => {
+  const response = await axios.get(`${API_URL}/users/${id}`);
+  return response.data;
+};
 
 // Create a new task
 export const createTask = async (taskData) => {

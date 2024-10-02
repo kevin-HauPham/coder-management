@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchTaskById, updateTaskStatus } from "../api";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import {
   TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import UserDetail from "./UserDetail"; // Import UserDetail component
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -26,8 +27,10 @@ const TaskDetails = () => {
   const [task, setTask] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const [newStatus, setNewStatus] = useState(""); // State for the new status
-  const [openDialog, setOpenDialog] = useState(false); // State to control dialog visibility
+  const [newStatus, setNewStatus] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [showUserDetail, setShowUserDetail] = useState(false); // State for showing user details
+  const [assignedUser, setAssignedUser] = useState(null); // State for assigned user details
 
   useEffect(() => {
     const loadTask = async () => {
@@ -50,8 +53,8 @@ const TaskDetails = () => {
   };
 
   const handleUpdateTask = () => {
-    setOpenDialog(true); // Open dialog to choose new status
-    handleMenuClose(); // Close the options menu
+    setOpenDialog(true);
+    handleMenuClose();
   };
 
   const handleDialogClose = () => {
@@ -66,7 +69,12 @@ const TaskDetails = () => {
     setOpenDialog(false);
   };
 
-  const statusOptions = ["pending", "working", "review", "done", "archive"]; // Possible status values
+  const statusOptions = ["pending", "working", "review", "done", "archive"];
+
+  const handleShowUserDetail = () => {
+    setAssignedUser(task.assigned_to); // Set the assigned user
+    setShowUserDetail(true); // Show user detail
+  };
 
   if (!task) return <div>Loading...</div>;
 
@@ -96,13 +104,29 @@ const TaskDetails = () => {
             </Typography>
           </Box>
 
+          {/* Assigned Employee Information */}
+          {task.assigned_to && (
+            <Box mt={2}>
+              <Typography variant="body2" color="text.secondary">
+                <strong>Assigned Employee:</strong>{" "}
+                <Button onClick={handleShowUserDetail}>
+                  {task.assigned_to}
+                </Button>
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                <strong>Date Assigned:</strong>{" "}
+                {new Date(task.createdAt).toLocaleDateString()}
+                {/* Format date */}
+              </Typography>
+            </Box>
+          )}
+
           <Box display="flex" justifyContent="flex-end" mt={2}>
             <IconButton onClick={handleMenuClick}>
               <MoreVertIcon />
             </IconButton>
             <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
               <MenuItem onClick={handleUpdateTask}>Update Task</MenuItem>
-              {/* Add more options as needed */}
             </Menu>
           </Box>
         </CardContent>
@@ -114,7 +138,6 @@ const TaskDetails = () => {
         </Button>
       </Box>
 
-      {/* Dialog for Updating Task Status */}
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>Update Task Status</DialogTitle>
         <DialogContent>
@@ -145,6 +168,14 @@ const TaskDetails = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Render User Detail if showUserDetail is true */}
+      {showUserDetail && (
+        <UserDetail
+          userId={task.assigned_to}
+          onClose={() => setShowUserDetail(false)}
+        />
+      )}
     </>
   );
 };
