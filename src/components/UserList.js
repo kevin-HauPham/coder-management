@@ -1,4 +1,3 @@
-// src/components/UserList.js
 import React, { useEffect, useState } from "react";
 import { fetchUsers } from "../api";
 

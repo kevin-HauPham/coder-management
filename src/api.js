@@ -1,4 +1,3 @@
-// src/api.js
 import axios from "axios";
 
 // Set the base URL to your backend API
@@ -42,10 +41,10 @@ export const createUser = async (userData) => {
 export const deleteTask = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/tasks/${id}`);
-    return response.data; // This assumes your backend sends a response
+    return response.data;
   } catch (error) {
     console.error("Error deleting task:", error);
-    throw error; // Rethrow the error if you want to handle it later
+    throw error;
   }
 };
 

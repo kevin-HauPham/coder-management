@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { createTask, createUser } from "../api"; // Ensure createUser function exists
-import { useTasks } from "../context/TaskContext"; // Import the useTasks context
+import React, { useState } from "react";
+import { createTask, createUser } from "../api";
+import { useTasks } from "../context/TaskContext";
 import {
   TextField,
   Button,
@@ -15,27 +15,26 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { fetchUsers } from "../api"; // Make sure this function exists to fetch users
+import { fetchUsers } from "../api";
 
 const TaskForm = () => {
-  const { loadTasks } = useTasks(); // Get the loadTasks function from the context
+  const { loadTasks } = useTasks();
   const [taskName, setTaskName] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
-  const [creator, setCreator] = useState(""); // State for creator selection
-  const [assignedEmployee, setAssignedEmployee] = useState(""); // State for assigned employee
-  const [users, setUsers] = useState([]); // State to hold user options
-  const [openAddUserDialog, setOpenAddUserDialog] = useState(false); // State to control dialog visibility
-  const [newUserName, setNewUserName] = useState(""); // State for new user name
-  const [taskStatus, setTaskStatus] = useState("pending"); // Default task status
+  const [creator, setCreator] = useState("");
+  const [assignedEmployee, setAssignedEmployee] = useState("");
+  const [users, setUsers] = useState([]);
+  const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
+  const [newUserName, setNewUserName] = useState("");
+  const [taskStatus, setTaskStatus] = useState("pending");
 
-  const statusOptions = ["pending", "working", "review", "done", "archive"]; // Task status options
-
+  const statusOptions = ["pending", "working", "review", "done", "archive"];
   const handleFetchUsers = async () => {
     try {
-      const userData = await fetchUsers(); // Fetch users from the API
-      setUsers(userData); // Set users in the state
+      const userData = await fetchUsers();
+      setUsers(userData);
     } catch (error) {
-      console.error("Error fetching users:", error); // Handle any errors
+      console.error("Error fetching users:", error);
     }
   };
 
@@ -45,33 +44,33 @@ const TaskForm = () => {
     const taskData = {
       name: taskName,
       description: taskDescription,
-      creator, // Include the selected creator
-      assigned_to: assignedEmployee, // Include the assigned employee
-      status: taskStatus, // Include the selected task status
+      creator,
+      assigned_to: assignedEmployee,
+      status: taskStatus,
     };
 
     try {
-      await createTask(taskData); // Call the API to create a new task
-      loadTasks(); // Refresh the tasks after creation
-      setTaskName(""); // Clear the input fields
+      await createTask(taskData);
+      loadTasks();
+      setTaskName("");
       setTaskDescription("");
-      setCreator(""); // Reset creator selection
-      setAssignedEmployee(""); // Reset assigned employee selection
-      setTaskStatus("pending"); // Reset task status
-      setUsers([]); // Clear users after form submission if needed
+      setCreator("");
+      setAssignedEmployee("");
+      setTaskStatus("pending");
+      setUsers([]);
     } catch (error) {
-      console.error("Error creating task:", error); // Handle any errors
+      console.error("Error creating task:", error);
     }
   };
 
   const handleAddUser = async () => {
     try {
-      await createUser({ name: newUserName }); // Call API to create new user
-      setNewUserName(""); // Clear the input field
-      handleFetchUsers(); // Refresh the users list
-      handleCloseAddUserDialog(); // Close the dialog
+      await createUser({ name: newUserName });
+      setNewUserName("");
+      handleFetchUsers();
+      handleCloseAddUserDialog();
     } catch (error) {
-      console.error("Error adding user:", error); // Handle any errors
+      console.error("Error adding user:", error);
     }
   };
 
@@ -87,7 +86,7 @@ const TaskForm = () => {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{ width: "100%", maxWidth: 500, mx: "auto", p: 2 }} // maxWidth sets the max width, and mx: 'auto' centers the form
+      sx={{ width: "100%", maxWidth: 500, mx: "auto", p: 2 }}
     >
       <Typography variant="h4" gutterBottom>
         Create New Task
@@ -124,18 +123,16 @@ const TaskForm = () => {
             value={assignedEmployee}
             onChange={(e) => setAssignedEmployee(e.target.value)}
             label="Assign To"
-            onOpen={handleFetchUsers} // Fetch users when dropdown opens
+            onOpen={handleFetchUsers}
           >
             {users.map((user) => (
               <MenuItem key={user._id} value={user._id}>
-                {user.name} {/* Adjust based on how user data is structured */}
+                {user.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </Box>
-
-      {/* Task Status Selection */}
       <Box mb={2}>
         <FormControl fullWidth required>
           <InputLabel>Status</InputLabel>
@@ -165,8 +162,6 @@ const TaskForm = () => {
           Add Employee
         </Button>
       </Box>
-
-      {/* Dialog for Adding New User */}
       <Dialog open={openAddUserDialog} onClose={handleCloseAddUserDialog}>
         <DialogTitle>Add New User</DialogTitle>
         <DialogContent>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchTaskById, updateTaskStatus } from "../api";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import {
   TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import UserDetail from "./UserDetail"; // Import UserDetail component
+import UserDetail from "./UserDetail";
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -29,8 +29,8 @@ const TaskDetails = () => {
   const open = Boolean(anchorEl);
   const [newStatus, setNewStatus] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [showUserDetail, setShowUserDetail] = useState(false); // State for showing user details
-  const [assignedUser, setAssignedUser] = useState(null); // State for assigned user details
+  const [showUserDetail, setShowUserDetail] = useState(false);
+  const [assignedUser, setAssignedUser] = useState(null);
 
   useEffect(() => {
     const loadTask = async () => {
@@ -72,8 +72,8 @@ const TaskDetails = () => {
   const statusOptions = ["pending", "working", "review", "done", "archive"];
 
   const handleShowUserDetail = () => {
-    setAssignedUser(task.assigned_to); // Set the assigned user
-    setShowUserDetail(true); // Show user detail
+    setAssignedUser(task.assigned_to);
+    setShowUserDetail(true);
   };
 
   if (!task) return <div>Loading...</div>;
@@ -104,7 +104,6 @@ const TaskDetails = () => {
             </Typography>
           </Box>
 
-          {/* Assigned Employee Information */}
           {task.assigned_to && (
             <Box mt={2}>
               <Typography variant="body2" color="text.secondary">
@@ -116,7 +115,6 @@ const TaskDetails = () => {
               <Typography variant="body2" color="text.secondary">
                 <strong>Date Assigned:</strong>{" "}
                 {new Date(task.createdAt).toLocaleDateString()}
-                {/* Format date */}
               </Typography>
             </Box>
           )}
@@ -168,8 +166,6 @@ const TaskDetails = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Render User Detail if showUserDetail is true */}
       {showUserDetail && (
         <UserDetail
           userId={task.assigned_to}

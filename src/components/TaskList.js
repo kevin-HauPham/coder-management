@@ -23,7 +23,7 @@ import {
 import { deleteTask } from "../api";
 
 const TaskList = () => {
-  const { tasks, user, loadTasks } = useTasks();
+  const { tasks, loadTasks } = useTasks();
   const [statusFilter, setStatusFilter] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -58,7 +58,6 @@ const TaskList = () => {
         Tasks
       </Typography>
 
-      {/* Task Filter Dropdown */}
       <Box mb={3}>
         <Select
           fullWidth
@@ -75,7 +74,6 @@ const TaskList = () => {
         </Select>
       </Box>
 
-      {/* Task List Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -90,7 +88,6 @@ const TaskList = () => {
           <TableBody>
             {filteredTasks.map((task) => (
               <TableRow key={task._id}>
-                {/* Task Name as Link */}
                 <TableCell>
                   <RouterLink
                     to={`/tasks/${task._id}`}
@@ -122,8 +119,6 @@ const TaskList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Confirmation Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>

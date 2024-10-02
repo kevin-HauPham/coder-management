@@ -8,14 +8,14 @@ const UserDetail = ({ userId, onClose }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (userId) {
-        const fetchedUser = await fetchUserById(userId); // Fetch user data
+        const fetchedUser = await fetchUserById(userId);
         setUserData(fetchedUser);
       }
     };
     loadUser();
   }, [userId]);
 
-  if (!userData) return <div>Loading...</div>; // Show loading state if data is not yet fetched
+  if (!userData) return <div>Loading...</div>;
 
   return (
     <Card variant="outlined" sx={{ margin: 2 }}>
