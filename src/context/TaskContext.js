@@ -7,7 +7,7 @@ export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState([]);
 
-  const loadTasks = async () => {
+  const loadTasks = async  () => {
     const data = await fetchTasks();
     setTasks(data);
   };

@@ -20,10 +20,11 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { deleteTask } from "../api";
+import { deleteTask, fetchTasks } from "../api";
 
 const TaskList = () => {
-  const { tasks, loadTasks } = useTasks();
+  const { loadTasks } = useTasks();
+  const [tasks, setTasks] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -31,8 +32,18 @@ const TaskList = () => {
   const filteredTasks = tasks.filter((task) =>
     statusFilter ? task.status === statusFilter : true
   );
+
   useEffect(() => {
-    loadTasks();
+    const fetchData = async () => {
+      try {
+        const data = await fetchTasks(); // Replace with your API call
+        setTasks(data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleOpenDialog = (taskId) => {
