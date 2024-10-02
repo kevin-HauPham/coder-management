@@ -27,11 +27,11 @@ const taskSchema = new mongoose.Schema(
     },
     assignedDate: {
       type: Date,
-      default: null, 
+      default: null,
     },
     deleted: {
       type: Boolean,
-      default: false,s
+      default: false,
     },
   },
   {
