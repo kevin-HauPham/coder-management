@@ -19,7 +19,18 @@ router.post(
     check("name")
       .isString()
       .notEmpty()
-      .withMessage("Task name is required and must be a valid string."),
+      .withMessage("Task name is required and must be a valid string.")
+      .custom(async (value) => {
+        // Custom validator to check if the task name already exists
+        const task = await Task.findOne({ name: value });
+        if (task) {
+          throw new Error(
+            "Task name already exists. Please choose a different name."
+          );
+        }
+        return true;
+      }),
+
     check("description")
       .isString()
       .notEmpty()

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Task = require("../models/Task");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -38,7 +39,7 @@ exports.searchUserByName = async (req, res) => {
 exports.getUserTasks = async (req, res) => {
   const { id } = req.params;
   try {
-    const tasks = await Task.find({ assignedTo: id });
+    const tasks = await Task.find({ assigned_to: id });
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });

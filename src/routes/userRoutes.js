@@ -31,7 +31,7 @@ router.post(
 
 // Get all users with optional filtering
 router.get("/users", getAllUsers);
-//
+// Get user by id
 router.get("/users/:id", getUserById);
 
 // Search user by name
