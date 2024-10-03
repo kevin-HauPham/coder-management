@@ -3,11 +3,27 @@ const Task = require("../models/Task");
 
 // Create a new user
 exports.createUser = async (req, res) => {
-  const user = new User(req.body);
+  const { name, role } = req.body; // Destructure the request body to get the name and role
+
   try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ name });
+
+    if (existingUser) {
+      // If user already exists, respond with a 409 Conflict status
+      return res
+        .status(409)
+        .json({ message: "User with this name already exists." });
+    }
+
+    // If the user does not exist, create a new user
+    const user = new User({ name, role }); // Include the role if provided
     await user.save();
+
+    // Respond with the created user data
     res.status(201).json(user);
   } catch (error) {
+    // Handle any other errors (e.g., validation errors)
     res.status(400).json({ message: error.message });
   }
 };
