@@ -29,6 +29,7 @@ exports.getAllTasks = async (req, res) => {
 // Get a single task by ID
 exports.getTaskById = async (req, res) => {
   const { id } = req.params;
+
   try {
     const task = await Task.findById(id);
     if (!task) return res.status(404).json({ message: "Task not found" });
@@ -46,9 +47,10 @@ exports.assignTask = async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
       id,
-      { assignedTo: userId },
+      { assigned_to: userId },
       { new: true }
     );
+    console.log("task", task);
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.status(200).json(task);
   } catch (error) {
@@ -86,7 +88,7 @@ exports.softDeleteTask = async (req, res) => {
 
   try {
     // Use findByIdAndDelete to permanently remove the task
-    const task = await Task.findByIdAndDelete(id);
+    const task = await Task.findByIdAndDelete(id, { delete: true });
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.status(204).send(); // Send no content on successful deletion
   } catch (error) {
