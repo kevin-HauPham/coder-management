@@ -44,7 +44,7 @@ const TaskList = () => {
     };
 
     fetchData();
-  }, []);
+  }, [tasks]);
 
   const handleOpenDialog = (taskId) => {
     setSelectedTask(taskId);
