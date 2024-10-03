@@ -36,7 +36,7 @@ const TaskList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchTasks(); // Replace with your API call
+        const data = await fetchTasks();
         setTasks(data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -44,7 +44,7 @@ const TaskList = () => {
     };
 
     fetchData();
-  }, [tasks]);
+  }, [loadTasks]);
 
   const handleOpenDialog = (taskId) => {
     setSelectedTask(taskId);
